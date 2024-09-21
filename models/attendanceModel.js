@@ -37,16 +37,18 @@ const markAttendance = async (studentId, attendanceCode) => {
   }
 };
 
-const getAttendanceData = async () => {
+const getAttendanceData = async (subjectCode) => {
   const result = await pool.query(`
     SELECT users.name, attendance_codes.subject_code, attendance.timestamp 
     FROM attendance
     JOIN users ON attendance.student_id = users.id
     JOIN attendance_codes ON attendance.attendance_code_id = attendance_codes.id
     WHERE attendance.timestamp > NOW() - INTERVAL '30 days'
-  `);
+    AND attendance_codes.subject_code = $1
+  `, [subjectCode]);
   return result.rows;
 };
+
 
 const generateCode = () => {
   return Math.random().toString(36).substring(2, 8).toUpperCase();

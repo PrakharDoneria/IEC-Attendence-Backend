@@ -63,9 +63,10 @@ This API allows teachers to generate unique attendance codes and students to sub
   ```json
   {
     "class_code": "A1B2C3",
-    "class_name": "Calculus"
+    "student_id": "12345"
   }
   ```
+  
 - **Sample Response**:
   ```json
   {

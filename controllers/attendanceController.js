@@ -4,10 +4,9 @@ const { exportData } = require('../utils/exportUtils');
 
 const generateCode = async (req, res) => {
   const { subject_code, class_name } = req.body;
-  const teacherId = req.user.id;
 
   try {
-    const code = await createAttendanceCode(teacherId, subject_code, class_name, getCurrentISTTime());
+    const code = await createAttendanceCode(subject_code, class_name, getCurrentISTTime());
     res.status(201).json({ code });
   } catch (error) {
     console.error(error);
@@ -16,14 +15,13 @@ const generateCode = async (req, res) => {
 };
 
 const submitCode = async (req, res) => {
-  const { class_code, class_name } = req.body;
-  const studentId = req.user.id;
+  const { class_code, student_id } = req.body; // Accept student ID as a parameter
 
   try {
-    const isValid = await validateAttendanceCode(class_code, class_name);
+    const isValid = await validateAttendanceCode(class_code);
     if (!isValid) return res.status(400).json({ error: 'Invalid or expired code' });
 
-    await markAttendance(studentId, class_code);
+    await markAttendance(student_id, class_code);
     res.status(200).json({ message: 'Attendance marked successfully' });
   } catch (error) {
     console.error(error);
@@ -33,9 +31,10 @@ const submitCode = async (req, res) => {
 
 const exportAttendance = async (req, res) => {
   const { format } = req.params;
+  const { subject_code } = req.query;
 
   try {
-    const data = await getAttendanceData(); // Fetch last 30 days data
+    const data = await getAttendanceData(subject_code);
     await exportData(res, data, format);
   } catch (error) {
     console.error(error);
