@@ -15,7 +15,7 @@ This API allows teachers to generate unique attendance codes and students to sub
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/PrakharDoneria/IEC-Attendence-Backend
    cd attendance-app
    ```
 

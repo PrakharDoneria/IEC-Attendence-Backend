@@ -1,4 +1,4 @@
-const { generateAttendanceCode, validateAttendanceCode, markAttendance, getAttendanceData } = require('../models/attendanceModel');
+const { createAttendanceCode, validateAttendanceCode, markAttendance, getAttendanceData } = require('../models/attendanceCodeModel');
 const { getCurrentISTTime } = require('../utils/timeUtils');
 const { exportData } = require('../utils/exportUtils');
 
@@ -7,7 +7,7 @@ const generateCode = async (req, res) => {
   const teacherId = req.user.id;
 
   try {
-    const code = await generateAttendanceCode(teacherId, subject_code, class_name, getCurrentISTTime());
+    const code = await createAttendanceCode(teacherId, subject_code, class_name, getCurrentISTTime());
     res.status(201).json({ code });
   } catch (error) {
     console.error(error);

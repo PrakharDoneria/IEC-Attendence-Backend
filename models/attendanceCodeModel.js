@@ -18,21 +18,38 @@ const validateAttendanceCode = async (code, className) => {
     [code, className]
   );
 
-  return result.rows.length > 0; 
+  return result.rows.length > 0; // Returns true if valid
 };
 
-const getAttendanceCodeDetails = async (code) => {
+const markAttendance = async (studentId, attendanceCode) => {
   const result = await pool.query(
-    'SELECT * FROM attendance_codes WHERE code = $1',
-    [code]
+    'SELECT id FROM attendance_codes WHERE code = $1',
+    [attendanceCode]
   );
 
-  if (result.rows.length === 0) throw new Error('Attendance code not found');
-  return result.rows[0];
+  if (result.rows.length) {
+    await pool.query(
+      'INSERT INTO attendance (student_id, attendance_code_id, timestamp) VALUES ($1, $2, NOW())',
+      [studentId, result.rows[0].id]
+    );
+  } else {
+    throw new Error('Attendance code not found');
+  }
+};
+
+const getAttendanceData = async () => {
+  const result = await pool.query(`
+    SELECT users.name, attendance_codes.subject_code, attendance.timestamp 
+    FROM attendance
+    JOIN users ON attendance.student_id = users.id
+    JOIN attendance_codes ON attendance.attendance_code_id = attendance_codes.id
+    WHERE attendance.timestamp > NOW() - INTERVAL '30 days'
+  `);
+  return result.rows;
 };
 
 const generateCode = () => {
-  return Math.random().toString(36).substring(2, 8).toUpperCase(); 
+  return Math.random().toString(36).substring(2, 8).toUpperCase(); // Generates a random 6-character alphanumeric code
 };
 
-module.exports = { createAttendanceCode, validateAttendanceCode, getAttendanceCodeDetails };
+module.exports = { createAttendanceCode, validateAttendanceCode, markAttendance, getAttendanceData };
